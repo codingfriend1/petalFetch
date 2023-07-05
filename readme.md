@@ -1,332 +1,362 @@
 # PetalFetch
 
-PetalFetch is a JavaScript library that allows you to make HTTP requests to APIs in both browser and Node.js environments using the built-in `fetch` and `https` libraries. By default returns responses in JSON.
+Introducing PetalFetch, a snappy little JavaScript library! Think of it as a digital hummingbird that swiftly carries your HTTP requests to APIs in both browser and Node.js worlds, using the native tools of `fetch` and `https`. And with a bit of hummingbird magic, it brings back the responses as tidy JSON. Handy, isn't it?
 
 # Installation
 
-To install the library, you can use npm:
+To get PetalFetch fluttering in your code, simply use npm:
 
 ```shell
 npm install --save petalfetch
 ```
 
+
 ## Usage
-First, import the library in your JavaScript file:
+
+To get started, invite the library into your JavaScript file:
 
 ```javascript
 const createPetal = require('petalfetch');
 ```
 
-## Creating a Petal Instance
-To create an instance of petal, use the createPetal function:
+## Spawning a Petal Instance
+
+To whip up an instance of PetalFetch, use the createPetal function:
 
 ```javascript
 const petal = createPetal();
 ```
 
-You can also pass default headers and responseType that will be sent with every request:
+And if you want every request to carry along some default headers and responseType, you can do so too:
 
 ```javascript
 const petal = createPetal({
-  baseurl: 'https://api.defaulturl.com', // Base URL to be prefixed to every request
-  method: 'GET', // Default HTTP method for every request
-  timeout: 5000, // Default timeout for every request (5 seconds)
+  baseurl: 'https://api.beesrus.com', // The hive of buzzing data
+  method: 'GET', // Your go-to way of requesting data
+  timeout: 5000, // Giving your bees 5 seconds to respond
   headers: {
-    'Authorization': 'Bearer <YOUR_TOKEN>' // Default headers for every request
+    'Authorization': 'Bearer <YOUR_TOKEN>' // A secret passcode for accessing the hive
   },
-  responseType: 'json', // Default response type, could also be 'blob' or 'text'
-  handleErrors: true, // Return instead of throw errors
+  responseType: 'json', // Receiving the sweet response in JSON format
+  handleErrors: true, // Requesting the library to kindly handle any errors
   params: {
-    limit: 30, // Default query parameters for every request
+    limit: 30, // Requesting a limit of 30 bees' worth of data
   },
   body: {
-    uid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed' // Default body content for every request
+    uid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed' // A special identification for your bee request
   }
 });
 ```
+Now you can buzz through your code and retrieve buzzing data with ease. Just like a bee gracefully hovering from flower to flower, PetalFetch helps you flutter through the APIs, bringing back nectar-like responses.
 
-## Making HTTP Requests
-The petal instance provides six methods for making HTTP requests: `get`, `post`, `put`, `patch`, `delete`, and the generic `request`.
+## Slinging HTTP Requests
+
+The petal instance is equipped with six nifty methods for making HTTP requests: `get`, `post`, `put`, `patch`, `delete`, and the all-rounder `request`.
 
 **GET Request**
 
 ```javascript
-const [error, response] = await petal.get(url, options);
+const [misfortune, wondrousFind] = await petal.get(url, options);
 
-if (!error) {
-  console.log('Response:', response);
+if (!mischief) {
+  console.log('Behold! A wondrous find awaits:', wondrousFind);
 }
 ```
+
 **POST Request**
 
 ```javascript
-const [error, response] = await petal.post(url, options);
+const [catastrophe, marvel] = await petal.post(url, options);
 
-if (!error) {
-  console.log('Response:', response);
+if (!catastrophe) {
+  console.log('Magical transformation complete! Response:', marvel);
 }
 ```
+
 **PUT Request**
 
 ```javascript
-const [error, response] = await petal.put(url, options);
+const [glitch, magic] = await petal.put(url, options);
 
-if (!error) {
-  console.log('Response:', response);
+if (!glitch) {
+  console.log('Abracadabra! Response:', magic);
 }
 ```
+
 **PATCH Request**
 
 ```javascript
-const [error, response] = await petal.patch(url, options);
+const [mischief, wonder] = await petal.patch(url, options);
 
-if (!error) {
-  console.log('Response:', response);
+if (!misfortune) {
+  console.log('Hocus Pocus! Response:', wonder);
 }
 ```
+
 **Delete Request**
 
 ```javascript
-const [error, response] = await petal.delete(url, options);
+const [catastrophe, marvel] = await petal.delete(url, options);
 
 if (!error) {
   console.log('Response:', response);
 }
 ```
-**Generic Request**
-You can use `request` to make general HTTP requests using the petal instance. Just replace url and options with the appropriate values for your use case.
+
+**General Request** You can employ `request` to make any HTTP requests with the petal instance. Just plug in the appropriate values for url and options for your case.
 
 ```javascript
 const options = {
-  url: 'https://example.com/login'
-  method: 'POST',
+  url: 'https://weanimals.com/login', // The enchanted realm of WeAnimals
+  method: 'POST', // Summoning the magical POST method
   body: {
-    username: 'john_doe',
-    password: 'secretpassword',
+    username: 'mrfastwings', // The username of the swift and nimble
+    password: 'nectarlovers70', // The secret password of the honey connoisseurs
   },
 };
 
-const [error, response] = await petal.request(options);
+const [glitch, wonder] = await petal.request(options);
 
-if (!error) {
-  console.log('Response:', response);
+if (!glitch) {
+  console.log('Mystical wonders await! Response:', wonder);
 }
 ```
-## Updating Defaults
-The `setDefaults()` method in PetalFetch allows you to define default configuration for your HTTP requests after initialization. Any defaults that you set using this method will be applied to all future requests.
 
-Here are the options that you can set:
+## Tweaking Defaults
+
+With PetalFetch's `setDefaults()` method, you have the power to customize the default configuration for your HTTP requests even after initializing the library. Behold all the options you can tweak:
 
 ### baseurl
 
-The `baseurl` option in the `petal` library allows you to set a default base URL for your HTTP requests. It's particularly useful when you are working with APIs where you repeatedly have to make requests to the same base URL.
+The `baseurl` option in PetalFetch lets you set a home base for your HTTP requests. It's like having a magical teleportation portal that transports your requests to the desired destination.
 
-This `baseurl` can be set during the initialization of the `petal` instance or later using the `setDefaults` method. All the requests made using the `petal` instance will prepend this base URL to the relative URLs provided in the request.
+🏰 Setting the `baseurl` during initialization:
 
-Here's a brief overview of how you can interact with `baseurl` in different scenarios:
-
-#### Initialization
-
-When you create a new `petal` instance, you can specify a `baseurl`:
-
-```
-javascript
+```javascript
 const petal = createPetal({
-  baseurl: 'http://example.com',
+  baseurl: 'http://enchanted-forest.com', // The mystical Enchanted Forest
 });
 ```
 
-Now, whenever you make a request using `petal.get('/endpoint')`, it will automatically target 'http://example.com/endpoint'.
+Now, a request like `petal.get('/magical-creature')` will automatically target 'http://enchanted-forest.com/magical-creature'.
 
-#### Overriding
-
-If you want to override the `baseurl` for a specific request, you can provide a `baseurl` in the request options:
+🧙 Overriding the `baseurl` for a specific request:
 
 ```javascript
-const response = await petal.get(`/endpoint`, { baseurl: `http://localhost:4000`});
+const response = await petal.get(`/secret-cave`, { baseurl: `http://hidden-kingdom.com` }); // A detour to the hidden realm of the Secret Cave
 ```
 
-This request will target 'http://localhost:4000/endpoint' instead of the `baseurl` specified during the creation of the `petal` instance.
+This request will target 'http://hidden-kingdom.com/secret-cave' instead of the `baseurl` set during the creation of the PetalFetch instance.
 
-#### Updating
-
-You can also update the `baseurl` at any time using the `setDefaults` method:
+🌌 Updating the `baseurl` at any time:
 
 ```javascript
-petal.setDefaults({ baseurl: 'http://newbaseurl.com' })
+petal.setDefaults({ baseurl: 'http://new-kingdom.com' }) // Embarking on a grand adventure to the New Kingdom
 ```
 
-Now, all subsequent requests made with the `petal` instance will use this new `baseurl`.
-
-#### Unsetting
-
-In case you need to unset the `baseurl`, you can do so by setting it to `null`:
+🔮 Unleashing the power of unset:
 
 ```javascript
-petal.setDefaults({ baseurl: null })
+petal.setDefaults({ baseurl: null }) // Vanishing into the URL-less void, wandering through magical realms without a home base
 ```
 
-After this, `petal` won't prepend any base URL to your requests unless you provide one in the request options.
-
-#### Intelligent URL Concatenation
-
-The `baseurl` option handles URL concatenation smartly. It avoids double slashes (`//`) when the `baseurl` ends with a slash, and the URL begins with one. Similarly, if a slash is missing between the `baseurl` and the URL, `petal` automatically adds it. This feature helps in maintaining the correctness of the URLs and reduces bugs related to incorrect URL formation.
+⚡ Intelligent URL Concatenation: The `baseurl` option ensures smooth travel by handling URL concatenation intelligently. It avoids double slashes (`//`) when the `baseurl` ends with a slash and the URL begins with one. Likewise, if there's a missing slash between the `baseurl` and the URL, PetalFetch magically inserts it, maintaining URL correctness and preventing pesky bugs.
 
 ### method
-The method option allows you to set a default HTTP method (like GET, POST, PUT, etc.) for your requests.
+
+The `method` option allows you to declare your go-to HTTP method, like a trusted wand in your spellcasting repertoire.
+
+🪄 Setting the default method:
 
 ```javascript
-petal.setDefaults({ method: 'POST' });
+petal.setDefaults({ method: 'POST' }) // Unleashing the power of the POST spell
 ```
-If you don't specify a method in a particular request, this default method will be used. It can be overridden in any specific request by providing the method option in that request.
+
+Remember, if a specific request doesn't indicate a method, this default method will be summoned. But fear not! You can always override it by supplying the `method` option in that request.
+
 ### timeout
-The timeout option allows you to set a default timeout (in milliseconds) for your requests.
+
+The `timeout` option lets you control the duration of your magical requests, giving them a finite timeframe.
+
+⏰ Setting the default timeout:
 
 ```javascript
-petal.setDefaults({ timeout: 5000 }); // 5 seconds
+petal.setDefaults({ timeout: 5000 }) // Empowering your requests with a time limit (5 seconds)
 ```
-If you don't specify a timeout in a particular request, this default timeout will be used. It can be overridden in any specific request by providing the timeout option in that request.
+
+If a request doesn't specify a timeout, this default will be your trusty companion. However, you can always override it by supplying the `timeout` option in a specific request.
+
 ### headers
-The headers option allows you to specify default headers for your requests.
+
+The `headers` option allows you to equip your requests with mystical headers that carry secret spells and incantations.
+
+🎩 Setting default headers:
 
 ```javascript
-petal.setDefaults({ headers: { 'Authorization': 'Bearer <YOUR_TOKEN>', } });
+petal.setDefaults({ headers: { 'Authorization': 'Bearer <YOUR_TOKEN>' } }) // Unlocking the secrets with your token
 ```
-If you don't specify headers in a particular request, these default headers will be used. They can be overridden or extended in any specific request by providing the headers option in that request. Note that when both default headers and request-specific headers are present, the request-specific headers take precedence. The default `'Content-Type'` is `'application/json'` and will only be overridden by explicitly providing a new `'Content-Type'` default or request option.
+
+If a request doesn't specify headers, these defaults will accompany your magical requests. But remember, when both default headers and request-specific headers are present, the latter takes precedence. The default `'Content-Type'` is `'application/json'`, but it can be overridden by explicitly providing a new `'Content-Type'` header in a specific request.
 
 ### responseType
-The responseType option allows you to specify the default format of the response data. It can be 'json', 'text', or 'stream'.
+
+The `responseType` option lets you choose the form in which the magical responses are delivered to you.
+
+📜 Setting the default response format:
 
 ```javascript
-petal.setDefaults({ responseType: 'json' });
+petal.setDefaults({ responseType: 'text' }) // Unfolding the responses in mesmerizing text form
 ```
-If you don't specify a responseType in a particular request, this default responseType will be used. It can be overridden in any specific request by providing the responseType option in that request.
 
-### handleErrors
-The handleErrors option allows you to define whether the API should handle errors globally.
+If a request doesn't specify a `responseType`, the default format will be used. You can override this for any request by supplying the `responseType` option in that request.
 
-```javascript
-petal.setDefaults({ handleErrors: true });
-```
-If you don't specify a handleErrors option in a particular request, this default setting will be used. It can be overridden in any specific request by providing the handleErrors option in that request.
+### handleErrors with PetalFetch
 
-### params
-The params option allows you to specify default query parameters for your requests.
-
-```javascript
-petal.setDefaults({ params: { limit: 10 } });
-```
-If you don't specify params in a particular request, these default params will be used. They can be overridden or extended in any specific request by providing the params option in that request.
-
-### body
-The body option allows you to set a default body for your requests. This can be particularly useful when you need to send the same data in multiple requests.
-
-```javascript
-petal.setDefaults({ body: { uid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed' } });
-```
-If you don't specify a body in a particular request, this default body will be used. It can be overridden in any specific request by providing the body option in that request.
-
-## Handling Errors with `handleErrors` Option
-Our API library supports a flexible way of handling errors that might occur during your HTTP requests. By default, any HTTP status code outside the range of 200-299 will trigger a rejection of the Promise returned by the API methods (GET, POST, PUT, PATCH, DELETE). The rejection will be an instance of `APIError` which includes the status code, response body, requested URL, and the HTTP method used.
-
-If you want to handle the errors at the API call site instead of the library automatically throwing them, you can do so by setting the `handleErrors` option to `true` either at the request level or as a default for all requests. If `handleErrors` is set to `true`, instead of rejecting the Promise on error, the library will resolve the Promise with an array, where the first element is the error and the second element is the response body.
-
-If `handleErrors` is set at both levels, the request-level setting takes precedence.
+The `handleErrors` option brings a touch of seriousness to our whimsical adventure. When set to `true`, PetalFetch will return errors instead of throwing them, allowing you to handle them with precision and care.
 
 Here's an example of using `handleErrors`:
 
 ```javascript
-const petal = createPetal({ handleErrors: true }); // handleErrors set to true as a default
+const petal = createPetal({ handleErrors: true, baseurl: 'https://mysticalrealm.com' }); // Embrace the power of handling errors
 
-// If a request fails, instead of throwing, it will resolve with [error, response]
-const [ err, response ] = await petal.get('https://example.com/nonexistent')
+// If a request encounters a hiccup, it will gracefully resolve with [spellGoneWrong, wondrousResponse]
+const [spellGoneWrong, wondrousResponse] = await petal.get('/mysteriousPath');
 
-if(!err) {
-  console.log(response)
+if (!spellGoneWrong) {
+  console.log('Response:', wondrousResponse);
 }
 
 try {
-  const response = await api
-    .get('https://example.com/nonexistent', { handleErrors: false })
+  const response = await petal.get('/mysteriousPath', { handleErrors: false }); // Disabling handleErrors for this request
 
-  console.log(response)
-} catch(err) {
-  console.log('err', err); 
+  console.log('Response:', response);
+} catch (spellGoneWrong) {
+  console.log('Oh no, the spell backfired:', spellGoneWrong);
 }
 ```
-Please note, if `handleErrors` is `false` or not set and an error occurs, you should catch the error using `catch` method on the Promise or with `try/catch` to handle it, otherwise it will result in an unhandled promise rejection.
 
-This `handleErrors` option provides flexibility in error handling based on the requirements of your application. You can either handle all errors in a uniform manner or handle them individually based on the specific API call.
+In the above example, when `handleErrors` is set to `true`, PetalFetch will resolve the Promise even if an error occurs during the request. The first element in the result array will be `spellGoneWrong`, which represents the error, while the second element `wondrousResponse` holds the response when the request succeeds.
 
-## Customizing Request Options
-The options parameter for each request method is an object that allows you to customize the request.
+If you decide to disable `handleErrors` for a specific request by setting it to `false`, any error encountered during that request will be thrown as an exception, which you can gracefully catch using `try/catch`.
+
+This `handleErrors` option provides flexibility in how you handle errors throughout your magical coding journey. You can choose to embrace errors and handle them individually or let them gracefully flow through your code, ready to be captured when needed. The choice is yours!
+
+### params
+
+The `params` option allows you to sprinkle enchanting query parameters into your requests, unlocking hidden realms and treasures.
+
+🌟 Setting default query parameters:
+
+```javascript
+petal.setDefaults({ params: { limit: 30, sort: 'asc' } }) // Sprinkling your requests with the power of limit and sort
+```
+
+These parameters will accompany every request made by the PetalFetch instance. If a request doesn't specify query parameters, these defaults will be used. You can override or extend them in any specific request by providing the `params` option.
+
+### body
+
+The `body` option lets you infuse default content into the body of every request, like a magical essence that empowers your intentions.
+
+📦 Setting default request body content:
+
+```javascript
+petal.setDefaults({ body: { uid: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed' } }) // Infusing your requests with a unique identifier
+```
+
+If a request doesn't specify body content, this default will be used. You can always override it by supplying the `body` option in a specific request.
+
+Each of these options provides a layer of customization for your HTTP requests. By setting them when creating the PetalFetch instance or modifying them with the `setDefaults` method, you can embark on a magical coding journey filled with wonder and whimsy. Now, go forth and cast your HTTP spells with PetalFetch! May your requests always be enchanting, and your code be full of delight! ✨🌸✨
+
+## Tailoring Request Options
+
+Every request method in PetalFetch comes with an options parameter that allows you to customize the request in a delightful way.
 
 ### Query Parameters
-You can include query parameters by providing a params property in the options object:
+
+To include some whimsical query parameters, simply provide a `params` property in the options object:
 
 ```javascript
 const options = {
+  baseurl: "https://sevenhalls.com",
   params: {
-    page: 2,
     limit: 30,
-  },
+    magicLevel: "Third"
+  }
 };
 
-petal.get(url, options);
+petal.get("/books", options); // https://sevenhalls.com/books?limit=30&magicLevel=Third
 ```
 
+Unleash your imagination and let the query parameters add a touch of enchantment to your requests.
+
 ### Request Body
-For POST and PUT requests, you can include a request body by providing a body property in the options object:
+
+For POST and PUT requests, you have the power to provide a captivating request body by adding a `body` property in the options object:
 
 ```javascript
 const options = {
   body: {
     id: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed',
-    name: 'My todo item',
-    updatedAt: 1688569673780
+    name: 'Magical potion',
+    ingredients: ['unicorn tears', 'dragon scales'],
+    createdDate: 1688569673780,
   },
 };
 
 petal.post(url, options);
 ```
 
-### Response Type
-You can specify the expected response type by providing a `responseType` property in the options object. The library supports the following response types:
+Cast a spell on your server by crafting a spellbinding request body that contains all the ingredients of your enchanting creation.
 
-- `"json"`: (default): Parses the response as JSON.
-- `"text"`: Retrieves the response as text.
-- `"blob"`: Retrieves the response as a Blob.
+### Response Type
+
+You can specify the desired response type to receive a response that resonates with your wizardry. Add a `responseType` property in the options object with one of the following magical values:
+
+- `"json"` (default): The response is parsed as JSON, revealing its mystical secrets.
+- `"text"`: The response is retrieved as plain text, allowing you to decipher its hidden messages.
+- `"blob"`: The response is retrieved as a Blob, like a mysterious magical artifact waiting to be explored.
+
+For example, to unveil the JSON secrets, use the following incantation:
 
 ```javascript
 const options = {
   responseType: 'json',
 };
 
-const [error, response] = await petal.get(url, options);
+const [error, magic] = await petal.get(url, options);
 
 if (!error) {
-  console.log('Response:', response);
+  console.log('Magic Unveiled:', magic);
 }
 ```
 
+Prepare to be dazzled as the response reveals its true nature in the format of your choice.
+
 ### Custom Headers
-You can include custom headers by providing a headers property in the options object:
+
+If you wish to include custom headers, prepare your magical arsenal by adding a `headers` property in the options object:
 
 ```javascript
 const options = {
   headers: {
     'Content-Type': 'text/html',
     'Authorization': 'Bearer <YOUR_TOKEN>',
+    'Spell': 'Wingardium Leviosa',
   },
 };
 
 petal.get(url, options);
 ```
 
-## File Upload
-The library also supports file uploads in the browser. The uploadFiles function sends a POST request to the server with multiple files in the body of the request. The files are sent as multipart/form-data.
+Empower your request with mystical headers that carry the essence of your magic. Whether it's authentication tokens or enchanting spells, these headers will guide your request on a marvelous journey.
 
-Include the following HTML in your web page:
+Let your imagination soar as you tailor the request options to create a truly enchanting experience with PetalFetch.
+
+## File Upload
+
+The library supports a whimsical feature called "Fluttering Files" that allows you to upload files in a magical way. The `flutterFiles` function gracefully sends a POST request to the server, carrying multiple files within the body of the request, all in the form of `multipart/form-data`.
+
+In your web page, create a portal to the realm of file uploads:
 
 ```html
 <!DOCTYPE html>
@@ -334,31 +364,32 @@ Include the following HTML in your web page:
   <body>
     <form>
       <input type="file" id="fileInput" multiple>
-      <button type="button" onclick="upload()">Upload</button>
+      <button type="button" onclick="flutter()">Flutter!</button>
     </form>
 
     <script src="petalfetch.js"></script> <!-- Replace with the actual path to your API JavaScript file -->
     <script>
       const petal = createPetal({ handleErrors: true, responseType: 'text' });
 
-      async function upload() {
-        const input = document.getElementById('fileInput');
-        const files = Array.from(input.files);
+      async function flutter() {
+        const portal = document.getElementById('fileInput');
+        const filesToFlutter = Array.from(portal.files);
 
-        const [ err, response ] = await petal
-          .uploadFiles('http://localhost:3000/upload', files)
+        const [ mischief, wondrousFind ] = await petal
+          .flutterFiles('http://localhost:3000/flutter', filesToFlutter);
 
-        if(!err) {
-          console.log('Files uploaded successfully:', response);
+        if (!mischief) {
+          console.log('Files fluttered successfully:', wondrousFind);
         } else {
-          console.error('Failed to upload files:', err);
+          console.error('Failed to flutter files:', mischief);
         }
       }
     </script>
   </body>
 </html>
 ```
-Here's a starter on how to receive these files in Node.js
+
+On the server side, we have crafted a whimsical Node.js script to embrace the fluttering files:
 
 ```javascript
 const express = require('express');
@@ -369,38 +400,40 @@ const path = require('path');
 
 const PORT = 3000;
 
-// Create the upload directory if it doesn't exist
-const dir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(dir)) {
-  fs.mkdirSync(dir, { recursive: true });
+// Create the magical upload directory if it doesn't exist
+const mysticalDirectory = path.join(__dirname, 'library');
+if (!fs.existsSync(mysticalDirectory)) {
+  fs.mkdirSync(mysticalDirectory, { recursive: true });
 }
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, dir);
+    cb(null, mysticalDirectory);
   },
   filename: function (req, file, cb) {
-    const fileExt = path.extname(file.originalname);
-    const fileName = path.basename(file.originalname, fileExt);
-    cb(null, fileName + '-' + Date.now() + fileExt);
+    const fileExtension = path.extname(file.originalname);
+    const fileName = path.basename(file.originalname, fileExtension);
+    cb(null, fileName + '-' + Date.now() + fileExtension);
   },
 });
-const upload = multer({ storage });
+
+const flutter = multer({ storage });
 
 const app = express();
 app.use(cors());
 
-// Route for uploading files
-app.post('/upload', upload.any(), async (req, res) => {
-  console.log('Received files', req.files.map((file) => file.path));
-  return res.send({ message: 'Files uploaded and forwarded successfully.' });
+// A magical route to receive the fluttering files
+app.post('/flutter', flutter.any(), async (req, res) => {
+  console.log('Received fluttering files', req.files.map((file) => file.path));
+  return res.send({ message: 'Files fluttered and enchanted successfully.' });
 });
 
-// Server setup
+// Magical server setup
 app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
 ```
 
-File uploads **from** Node.js is currently not supported.
+Please note that, for now, the enchantment of file uploads from a Node.js environment is not supported. Stay tuned for future magical updates!
 
 ### License
-This project is licensed under the MIT License. See the LICENSE file for details.
+
+This project is licensed under the MIT License. Refer to the LICENSE file for more details.
