@@ -1,0 +1,39 @@
+{
+  "name": "petalfetch",
+  "version": "1.0.0",
+  "description": "PetalFetch is a minimal and speedy sidekick that, using only native libraries, transforms your HTTP interaction into a whimsical dance of elegance and simplicity.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "npm run test-browser && npx webpack --config webpack.config.js",
+    "test": "mocha test.js",
+    "test-browser": "open browser-tests.html"
+  },
+  "author": "Jon Paul Miles",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codingfriend1/petalfetch"
+  },
+  "keywords": [
+    "http",
+    "cross-platform",
+    "native",
+    "minimal",
+    "lightweight"
+  ],
+  "bugs": {
+    "url": "https://github.com/codingfriend1/petalfetch/issues"
+  },
+  "homepage": "https://github.com/codingfriend1/petalfetch#readme",
+  "devDependencies": {
+    "chai": "^4.3.7",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mocha": "^10.2.0",
+    "msw": "^1.2.2",
+    "multer": "^1.4.5-lts.1",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
+  }
+}
