@@ -30,8 +30,8 @@ const petal = createPetal({
   method: 'GET', // Default HTTP method
   timeout: 5000, // Default timeout in milliseconds
   headers: {
-    'Content-Type': 'application/json', // Already the default without being set
-    'Authorization': 'Bearer <YOUR_TOKEN>',
+    'Content-Type': 'text/html',
+    'Authorization': 'Bearer <YOUR_TOKEN>', // A secret code for accessing the hive
   },
   responseType: 'json', // Default response type
   handleErrors: true, // Default error handling strategy
@@ -62,6 +62,18 @@ const [error, response] = await petal.get('/books', options);
 ### POST Request
 
 ```javascript
+const options = {
+  body: {
+    id: '1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed',
+    name: 'Magical potion',
+    ingredients: ['unicorn tears', 'dragon scales'],
+    createdDate: 1688569673780,
+  },
+  headers: {
+    'Spell': 'Wingardium Leviosa'
+  }
+}
+
 const [catastrophe, marvel] = await petal.post(url, options);
 
 if (!catastrophe) {
@@ -297,6 +309,8 @@ This section provides a concise list of all the methods provided by PetalFetch, 
 - `petal.patch(url: String, options: Object)`: Makes a PATCH request.
 - `petal.delete(url: String, options: Object)`: Makes a DELETE request.
 - `petal.request(options: Object)`: Makes a request of any type.
+- `petal.setDefaults(options: Object)`: Updates the default settings for all requests
+- `petal.uploadFiles(url: String, files: [ FormData ], options: Object)`: Uploads a list of files to an endpoint
 
 Please note that all request methods return a Promise that resolves to an array of two elements: `[error, response]`. If the request is successful, `error` will be `null` and `response` will contain the server's response. If the request fails, `error` will contain the error and `response` will be `null`.
 
