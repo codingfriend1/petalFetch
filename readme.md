@@ -6,7 +6,7 @@ Welcome to PetalFetch, a delightful and lightweight JavaScript library that make
 
 To install PetalFetch, use npm with the following command:
 
-```shell
+```terminal
 npm install --save petalfetch
 ```
 
@@ -22,12 +22,11 @@ The `createPetal` function is a factory function that creates instances of Petal
 
 ## Getting Started
 
-To use PetalFetch, first create an instance by invoking the `createPetal` function. This function takes a configuration object as an argument, where you can set default options for your HTTP requests:
+To start with PetalFetch, first, invoke the `createPetal` function to create an instance. It accepts a configuration object that sets the default parameters for your HTTP requests:
 
 ```javascript
 const petal = createPetal({
   baseurl: 'https://api.beesrus.com', // Default base URL for all requests
-  method: 'GET', // Default HTTP method
   timeout: 5000, // Default timeout in milliseconds
   headers: {
     'Content-Type': 'text/html',
@@ -38,7 +37,12 @@ const petal = createPetal({
 });
 ```
 
-If you provide a `baseurl` property in the configuration object, it will be prepended to your relative urls in each petal call. The `handleErrors` property determines the error handling strategy: when it's set to `true`, PetalFetch will log and return errors instead of throwing them.
+Two key properties are `baseurl` and `handleErrors`:
+
+- `baseurl` prepends its value to your relative URLs in each PetalFetch request.
+- `handleErrors` guides the error handling strategy. When set to `true`, PetalFetch logs and returns errors, preventing them from being thrown.
+
+These are initial explanations, and you will find a more comprehensive discussion on each of these properties in the following sections.
 
 ## Making Requests
 
@@ -51,7 +55,7 @@ const options = {
   baseurl: 'https://sevenhalls.com',
   params: {
     limit: 30,
-    magicLevel: 'Third',
+    magicLevel: 'Third'
   },
 };
 
@@ -134,50 +138,36 @@ if (!glitch) {
 
 ## Handling Errors
 
-PetalFetch offers two ways to handle errors:
+PetalFetch provides flexible error handling options through the `handleErrors` configuration:
 
-1. With `handleErrors` set to `true` in the instance configuration, PetalFetch will log and return errors instead of throwing them. This gives you more control over error handling. The first element in the result array will be `spellGoneWrong`, which represents the error, while the second element `wondrousResponse` holds the response when the request succeeds.
-2. If you decide to disable `handleErrors` for a specific request by setting it to `false`, any error encountered during that request will be thrown as an exception, which you can gracefully catch using `try/catch`.
+1. When `handleErrors` is set to `false` (default): Any error that occurs during the request will be thrown as an exception. You can catch these exceptions using `try/catch`.
 
 ```javascript
-const petal = createPetal({ handleErrors: true, baseurl: 'https://mysticalrealm.com' }); // Embrace the power of handling errors
-
-// If a request encounters a hiccup, it will gracefully resolve with [spellGoneWrong, wondrousResponse]
-const [spellGoneWrong, wondrousResponse] = await petal.get('/mysteriousPath');
-
-if (!spellGoneWrong) {
-  console.log('Response:', wondrousResponse);
-}
-
 try {
-  const response = await petal.get('/mysteriousPath', { handleErrors: false }); // Disabling handleErrors for this request
-
+  // With handleErrors set to false, an error during the request will throw an exception
+  const response = await petal.get('/mysteriousPath', { handleErrors: false });
   console.log('Response:', response);
-} catch (spellGoneWrong) {
-  console.log('Oh no, the spell backfired:', spellGoneWrong);
+} catch (error) {
+  console.log('An error occurred:', error);
 }
 ```
 
-The format of the returned error is as follows:
+2. When `handleErrors` is set to `true`: Instead of throwing exceptions, PetalFetch resolves requests with an array of two elements. If an error occurs, the first element represents the error, and the second element is null. If the request is successful, the first element is null, and the second element contains the server response.
 
 ```javascript
-new PetalError() extends Error {
-  method: 'POST',
-  status: 400,
-  url: 'https://weanimals.com/login',
-  body: { message: 'Password invalid.' }
+// If an error occurs, it's represented in the first element of the resolved array
+const [error, response] = await petal.get('/mysteriousPath', { handleErrors: true });
+
+if (!error) {
+  console.log('Response:', response);
 }
 ```
 
-You can access these errors as shown in the Making Requests section.
-
-This `handleErrors` option provides flexibility in how you handle errors throughout your magical coding journey. You can choose to embrace errors and handle them individually or let them gracefully flow through your code, ready to be captured when needed. The choice is yours!
+The `handleErrors` option empowers you with flexible error handling. Opt to let PetalFetch resolve errors as array responses, saving you from wrapping every API request in a try-catch. Or, manage errors your way with exception handling. This control allows you to streamline your code to match your project's needs. Your coding journey, your choice!
 
 ## Tweaking Defaults
 
-You can customize the default settings of PetalFetch at the instance creation stage. This can be useful when you're working with a particular API that requires specific settings.
-
-For instance, you can set the `baseurl` option to the base URL of the API you're working with, saving you the need to repeat it in every request:
+PetalFetch allows instance-level customization, perfect for APIs with specific requirements. For example, by setting the `baseurl` option, you can avoid repeating the base URL in every request:
 
 ```javascript
 const petal = createPetal({
@@ -185,15 +175,15 @@ const petal = createPetal({
 });
 ```
 
-Now, whenever you make a request like `petal.get('/magical-creature')`, the `baseurl` will be magically combined with the relative URL, guiding your request to 'http://enchanted-forest.com/magical-creature'.
+With this, a `petal.get('/magical-creature')` call is equivalent to requesting 'http://enchanted-forest.com/magical-creature'. This not only shortens your code, but also makes it more manageable.
 
-You can also update your defaults after they are set:
+You're free to modify the default settings even after creating an instance of PetalFetch:
 
 ```javascript
-petal.setDefaults({ headers: { 'Authorization': 'Bearer <YOUR_TOKEN>' } }) /* Update any of the default settings here */
+petal.setDefaults({ headers: { 'Authorization': 'Bearer <YOUR_TOKEN>' } });
 ```
 
-When you set defaults for `body`, `headers`, and `params`, the previous defaults for those keys are completely replaced. However, the default `'Content-Type'` header remains as `'application/json'` unless you explicitly provide a new value.
+Do note that setting defaults for `body`, `headers`, or `params` completely overrides the previous defaults. Yet, the `'Content-Type'` header will stay as `'application/json'` unless you override it explicitly.
 
 Keep in mind that any options specified in the request will merge with the defaults and take precedence over them. This allows you to fine-tune each request according to its specific requirements.
 
@@ -240,7 +230,7 @@ In your web page, create a portal to the realm of file uploads:
         const filesToFlutter = Array.from(portal.files);
 
         const [ mischief, wondrousFind ] = await petal
-          .flutterFiles('http://localhost:3000/flutter', filesToFlutter);
+          .uploadFiles('http://localhost:3000/flutter', filesToFlutter);
 
         if (!mischief) {
           console.log('Files fluttered successfully:', wondrousFind);
@@ -312,7 +302,7 @@ This section provides a concise list of all the methods provided by PetalFetch, 
 - `petal.setDefaults(options: Object)`: Updates the default settings for all requests
 - `petal.uploadFiles(url: String, files: [ FormData ], options: Object)`: Uploads a list of files to an endpoint
 
-Please note that all request methods return a Promise that resolves to an array of two elements: `[error, response]`. If the request is successful, `error` will be `null` and `response` will contain the server's response. If the request fails, `error` will contain the error and `response` will be `null`.
+When `handleErrors` is `true`, please note that all request methods return a Promise that resolves to an array of two elements: `[error, response]`. If the request is successful, `error` will be `null` and `response` will contain the server's response. If the request fails, `error` will contain the error and `response` will be `null`.
 
 ## Conclusion
 
