@@ -1,5 +1,8 @@
 const isBrowser = typeof window !== 'undefined';
 
+const APPLICATION_JSON = 'application/json';
+const APPLICATION_URL_ENCODED = 'application/x-www-form-urlencoded';
+
 if(!isBrowser) {
   global.mocha = require('mocha');
   global.chai = require('chai');
@@ -1242,7 +1245,7 @@ describe(`Headers`, () => {
 
   const defaultURL = `http://example.com/default`;
   const defaultMethod = 'POST';
-  const defaultHeaders = { Accept: 'application/json', Session: 'session_id=38afes7a8; user=john' };
+  const defaultHeaders = { Accept: APPLICATION_JSON, Session: 'session_id=38afes7a8; user=john' };
 
   if(isBrowser) {
     before(() => {
@@ -1274,7 +1277,7 @@ describe(`Headers`, () => {
       rest.post(defaultURL, (req, res, ctx) => {
         assert.equal(req.headers.get('Accept'), defaultHeaders['Accept']);
         assert.equal(req.headers.get('Session'), defaultHeaders['Session']);
-        assert.equal(req.headers.get('Content-Type'), 'application/json');
+        assert.equal(req.headers.get('Content-Type'), APPLICATION_JSON);
         return res(ctx.json({ message: "Header request successful" }));
       })
     );
@@ -1295,7 +1298,7 @@ describe(`Headers`, () => {
       rest.post(defaultURL, (req, res, ctx) => {
         assert.equal(req.headers.get('Accept'), updated_headers['Accept']);
         assert.equal(req.headers.get('Session'), updated_headers['Session']);
-        assert.equal(req.headers.get('Content-Type'), 'application/json');
+        assert.equal(req.headers.get('Content-Type'), APPLICATION_JSON);
         return res(ctx.json({ message: "Header request successful" }));
       })
     );
@@ -1320,14 +1323,14 @@ describe(`Headers`, () => {
       rest.post(defaultURL, (req, res, ctx) => {
         assert.equal(req.headers.get('Accept'), options_headers['Accept']);
         assert.equal(req.headers.get('Session'), options_headers['Session']);
-        assert.equal(req.headers.get('Content-Type'), 'application/json');
+        assert.equal(req.headers.get('Content-Type'), APPLICATION_JSON);
         return res(ctx.json({ message: "Header request successful" }));
       })
     );
 
     petal.setDefaults({
       headers: {
-        'Accept': 'application/json',
+        'Accept': APPLICATION_JSON,
         'Session': 'session_id=38afes7a8; user=sam'
       }
     })
@@ -1372,7 +1375,7 @@ describe(`Headers`, () => {
       rest.post(defaultURL, (req, res, ctx) => {
         assert.equal(req.headers.get('Accept'), new_headers['Accept']);
         assert.isNull(req.headers.get('Session'));
-        assert.equal(req.headers.get('Content-Type'), 'application/json');
+        assert.equal(req.headers.get('Content-Type'), APPLICATION_JSON);
         return res(ctx.json({ message: "Header request successful" }));
       })
     );
@@ -1459,7 +1462,7 @@ describe(`Headers`, () => {
         assert.equal(req.headers.get('Accept'), options_headers['Accept']);
         assert.equal(req.headers.get('Session'), defaultHeaders['Session']);
         assert.equal(req.headers.get('Authorization'), options_headers['Authorization']);
-        assert.equal(req.headers.get('Content-Type'), 'application/json');
+        assert.equal(req.headers.get('Content-Type'), APPLICATION_JSON);
         return res(ctx.json({ message: "Header request successful" }));
       })
     );
@@ -1469,6 +1472,62 @@ describe(`Headers`, () => {
     });
 
     assert.deepEqual(response, { message: "Header request successful" });
+  });
+
+  it(`should encode 'application/x-www-form-urlencoded'`, async () => {
+
+    const options_headers = {
+      'Accept': 'text/html',
+      'Authorization': 'Bearer <token>'
+    }
+    
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        assert.equal(req.headers.get('Content-Type'), APPLICATION_URL_ENCODED);
+        return res(ctx.json(req.body));
+      })
+    );
+
+    const response = await petal.request({ 
+      headers: {
+        'Content-Type': APPLICATION_URL_ENCODED
+      },
+      body: {
+        page: 1,
+        limit: 10,
+        searchTerms: ['photos', 'cats']
+      }
+    });
+
+    assert.deepEqual(response, 'page=1&limit=10&searchTerms=photos%2Ccats');
+  });
+
+  it(`should encode 'application/json'`, async () => {
+
+    const options_headers = {
+      'Accept': 'text/html',
+      'Authorization': 'Bearer <token>'
+    }
+    
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        assert.equal(req.headers.get('Content-Type'), APPLICATION_JSON);
+        return res(ctx.json(req.body));
+      })
+    );
+
+    const response = await petal.request({ 
+      headers: {
+        'Content-Type': APPLICATION_JSON
+      },
+      body: {
+        page: 1,
+        limit: 10,
+        searchTerms: ['photos', 'cats']
+      }
+    });
+
+    assert.deepEqual(response, {page: 1, limit: 10, searchTerms: ['photos', 'cats']});
   });
 
 });

@@ -10,6 +10,7 @@ function createPetal(settings = {}) {
   };
 
   const CONTENT_TYPE_JSON = 'application/json';
+  const CONTENT_TYPE_URL_ENCODED = 'application/x-www-form-urlencoded';
 
   let defaults = {
     headers: {
@@ -169,7 +170,12 @@ function createPetal(settings = {}) {
       if(isBrowser && config.body instanceof FormData) {
         delete config.headers['Content-Type'];
       } else if (config.body && Object.keys(config.body).length) {
-        config.body = JSON.stringify(config.body);
+        if(config.headers['Content-Type'] === CONTENT_TYPE_JSON) {
+          config.body = JSON.stringify(config.body);
+        } else if (config.headers['Content-Type'] === CONTENT_TYPE_URL_ENCODED) {
+          config.body = new URLSearchParams(config.body).toString();
+        }
+        
       } else {
         delete config.body;
       }
