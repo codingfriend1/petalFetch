@@ -3,6 +3,7 @@ const isBrowser = typeof window !== 'undefined';
 const APPLICATION_JSON = 'application/json';
 const APPLICATION_URL_ENCODED = 'application/x-www-form-urlencoded';
 
+
 if(!isBrowser) {
   global.mocha = require('mocha');
   global.chai = require('chai');
@@ -15,7 +16,7 @@ if(!isBrowser) {
   global.rest = msw.rest; 
 }
 
-global.createPetal = require('./index.js');
+global.createPetal = require('../index.js');
 global.assert = chai.assert;
 
 const server_url = `https://localhost:3000`;
