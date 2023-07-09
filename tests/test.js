@@ -7,6 +7,7 @@ const APPLICATION_URL_ENCODED = 'application/x-www-form-urlencoded';
 if(!isBrowser) {
   global.mocha = require('mocha');
   global.chai = require('chai');
+  global.sinon = require('sinon');
   global.msw = require('msw/node');
   global.setupServer = msw.setupServer;
   global.rest = require('msw').rest;
@@ -740,7 +741,7 @@ describe(`responseType`, () => {
 
 describe(`Errors`, () => {
 
-  let petal;
+  let petal, consoleLogStub;
 
   const defaultURL = `http://example.com/default`;
   const defaultMethod = 'POST';
@@ -751,17 +752,24 @@ describe(`Errors`, () => {
       server.start()
     });
     after(() => server.stop());
-    afterEach(() => server.resetHandlers());
+    afterEach(() => {
+      server.resetHandlers();
+      consoleLogStub.restore();
+    });
   } else {
     before(() => {
       server = setupServer();
       server.listen()
     });
     after(() => server.close());
-    afterEach(() => server.resetHandlers());
+    afterEach(() => {
+      server.resetHandlers();
+      consoleLogStub.restore();
+    });
   }
 
   beforeEach(() => {
+    consoleLogStub = sinon.stub(console, 'error');
     petal = createPetal({
       url: defaultURL,
       method: defaultMethod,
@@ -845,6 +853,78 @@ describe(`Errors`, () => {
 
     const [ error, response ] = await petal.request();
 
+    assert.instanceOf(error, Error);
+    assert.equal(error.status, 400);
+    assert.equal(error.method, 'POST');
+    assert.deepEqual(error.body, { message: "Bad Request" });
+  });
+
+  it(`should log errors if 'logErrors' is true`, async() => {
+
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        return res(ctx.status(400), ctx.json({ message: "Bad Request" }));
+      })
+    );
+
+    const [ error, response ] = await petal.request({ logErrors: true });
+
+    sinon.assert.calledWith(consoleLogStub, error);
+    assert.instanceOf(error, Error);
+    assert.equal(error.status, 400);
+    assert.equal(error.method, 'POST');
+    assert.deepEqual(error.body, { message: "Bad Request" });
+  });
+
+  it(`should not log errors if 'logErrors' is false`, async() => {
+
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        return res(ctx.status(400), ctx.json({ message: "Bad Request" }));
+      })
+    );
+
+    const [ error, response ] = await petal.request({ logErrors: false });
+
+    sinon.assert.notCalled(consoleLogStub);
+    assert.instanceOf(error, Error);
+    assert.equal(error.status, 400);
+    assert.equal(error.method, 'POST');
+    assert.deepEqual(error.body, { message: "Bad Request" });
+  });
+
+  it(`should be able to set default 'logErrors'`, async() => {
+
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        return res(ctx.status(400), ctx.json({ message: "Bad Request" }));
+      })
+    );
+
+    petal.setDefaults({ logErrors: true })
+
+    const [ error, response ] = await petal.request();
+
+    sinon.assert.calledWith(consoleLogStub, error);
+    assert.instanceOf(error, Error);
+    assert.equal(error.status, 400);
+    assert.equal(error.method, 'POST');
+    assert.deepEqual(error.body, { message: "Bad Request" });
+  });
+
+  it(`should override default 'logErrors' with 'logErrors' in call options`, async() => {
+
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        return res(ctx.status(400), ctx.json({ message: "Bad Request" }));
+      })
+    );
+
+    petal.setDefaults({ logErrors: true })
+
+    const [ error, response ] = await petal.request({ logErrors: false });
+
+    sinon.assert.notCalled(consoleLogStub);
     assert.instanceOf(error, Error);
     assert.equal(error.status, 400);
     assert.equal(error.method, 'POST');

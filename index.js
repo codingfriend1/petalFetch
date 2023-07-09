@@ -16,7 +16,7 @@ function createPetal(settings = {}) {
     headers: {
       'Content-Type': CONTENT_TYPE_JSON,
     },
-    responseType: 'json'
+    responseType: 'json',
   };
 
   setDefaults(settings);
@@ -53,6 +53,7 @@ function createPetal(settings = {}) {
     defaults.baseurl = options.baseurl !== undefined ? options.baseurl : defaults.baseurl
     defaults.method = options.method !== undefined ? options.method : defaults.method
     defaults.timeout = options.timeout !== undefined ? options.timeout : defaults.timeout
+    defaults.logErrors = options.logErrors !== undefined ? options.logErrors : defaults.logErrors
     defaults.headers = options.headers || defaults.headers || {}
     defaults.headers['Content-Type'] = defaults.headers && defaults.headers['Content-Type'] || CONTENT_TYPE_JSON
     defaults.responseType = options.responseType || defaults.responseType || 'json'
@@ -83,7 +84,9 @@ function createPetal(settings = {}) {
 
   function handleErrors(config, error) {
     if(config.handleErrors) {
-      console.error(error)
+      if(config.logErrors === true) {
+        console.error(error)
+      }
       return [ error, null ];
     } else {
       throw error;
@@ -130,6 +133,7 @@ function createPetal(settings = {}) {
       baseurl: options.baseurl !== undefined ? options.baseurl : (defaults.baseurl || undefined),
       method: options.method !== undefined ? options.method : defaults.method,
       timeout: options.timeout !== undefined ? options.timeout : defaults.timeout,
+      logErrors: options.logErrors !== undefined ? options.logErrors : defaults.logErrors,
       headers: {
         ...defaults.headers,
         ...options.headers
