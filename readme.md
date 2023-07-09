@@ -34,7 +34,7 @@ const petal = createPetal({
   },
   responseType: 'json', // Default response type
   handleErrors: true, // Default error handling strategy
-  logErrors: true, // When `handleErrors` is true an an error is created, also automatically log it
+  logErrors: true, // When `handleErrors` is true if an error is created, also automatically log it
 });
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "petalfetch",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "PetalFetch is a minimal and speedy sidekick that, using only native libraries, transforms your HTTP interaction into a whimsical dance of elegance and simplicity.",
   "main": "index.js",
   "scripts": {
