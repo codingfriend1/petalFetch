@@ -58,7 +58,7 @@ function createPetal(settings = {}) {
     defaults.headers['Content-Type'] = defaults.headers && defaults.headers['Content-Type'] || CONTENT_TYPE_JSON
     defaults.responseType = options.responseType || defaults.responseType || 'json'
     defaults.handleErrors = options.handleErrors || defaults.handleErrors
-    defaults.params = options.params || defaults.params || {}
+    defaults.query = options.query || defaults.query || {}
     defaults.body = options.body || defaults.body || {}
   }
 
@@ -122,7 +122,7 @@ function createPetal(settings = {}) {
   }
 
   function buildURLWithQueryParams(config) {
-    const query = new URLSearchParams(config.params).toString();
+    const query = new URLSearchParams(config.query).toString();
     return query ? `${config.url}?${query}` : config.url;
   }
 
@@ -138,9 +138,9 @@ function createPetal(settings = {}) {
         ...defaults.headers,
         ...options.headers
       },
-      params: {
-        ...defaults.params,
-        ...options.params
+      query: {
+        ...defaults.query,
+        ...options.query
       },
       body: isBrowser && options.body instanceof FormData ? options.body: {
         ...defaults.body,

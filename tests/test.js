@@ -144,32 +144,6 @@ describe('createPetal', function() {
     assert.isFalse(isUploadFilesDefined);
   });
 
-  it('should perform a GET request with query parameters', function(done) {
-    const queryParams = {
-      page: 3,
-      limit: 50
-    };
-
-    server.use(
-      rest.get(defaultURL, (req, res, ctx) => {
-        if (req.url.searchParams.get('page') == queryParams.page &&
-            req.url.searchParams.get('limit') == queryParams.limit) {
-          return res(ctx.json({ message: 'GET request with query parameters successful' }));
-        } else {
-          return res(ctx.status(500), ctx.text('GET request failed'));
-        }
-      })
-    );
-
-    petal.get(defaultURL, {
-      params: queryParams
-    }).then((response) => {
-      assert.deepEqual(response, { message: 'GET request with query parameters successful' });
-      done();
-    }).catch(done);
-  });
-
-
   it('should perform a GET request', function(done) {
     server.use(
       rest.get(defaultURL, (req, res, ctx) => {
@@ -293,6 +267,31 @@ describe('Query, Header, and Body', function() {
     });
   });
 
+  it('should perform a GET request with query parameters', function(done) {
+    const queryParams = {
+      page: 3,
+      limit: 50
+    };
+
+    server.use(
+      rest.get(defaultURL, (req, res, ctx) => {
+        if (req.url.searchParams.get('page') == queryParams.page &&
+            req.url.searchParams.get('limit') == queryParams.limit) {
+          return res(ctx.json({ message: 'GET request with query parameters successful' }));
+        } else {
+          return res(ctx.status(500), ctx.text('GET request failed'));
+        }
+      })
+    );
+
+    petal.get(defaultURL, {
+      query: queryParams
+    }).then((response) => {
+      assert.deepEqual(response, { message: 'GET request with query parameters successful' });
+      done();
+    }).catch(done);
+  });
+
   it('should perform a PATCH request with query parameters', function(done) {
 
     const queryParams = {
@@ -312,7 +311,7 @@ describe('Query, Header, and Body', function() {
     );
 
     petal.patch(defaultURL, {
-      params: queryParams
+      query: queryParams
     }).then((response) => {
       assert.deepEqual(response, { message: 'PATCH request with query parameters successful' });
       done();
@@ -361,18 +360,18 @@ describe('Query, Header, and Body', function() {
     }).catch(done);
   });
 
-  it('should perform a POST request with body, headers, and params', function(done) {
+  it('should perform a POST request with body, headers, and query', function(done) {
     const requestBody = { test: 'data' };
     const requestHeaders = { 'Custom-Header': 'CustomValue', 'Header-two': 'Five'  };
-    const requestParams = { id: 123 };
+    const requestQuery = { id: 123 };
 
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
         if (deepEqual(req.body, requestBody) &&
             req.headers.get('Custom-Header') === requestHeaders['Custom-Header'] &&
             req.headers.get('Header-two') === requestHeaders['Header-two'] &&
-            req.url.searchParams.get('id') === requestParams.id.toString()) {
-          return res(ctx.json({ message: 'POST request with body, headers, and params successful' }));
+            req.url.searchParams.get('id') === requestQuery.id.toString()) {
+          return res(ctx.json({ message: 'POST request with body, headers, and query successful' }));
         } else {
           return res(ctx.status(500), ctx.text('POST request failed'));
         }
@@ -382,9 +381,9 @@ describe('Query, Header, and Body', function() {
     petal.post(defaultURL, {
       body: requestBody,
       headers: requestHeaders,
-      params: requestParams
+      query: requestQuery
     }).then((response) => {
-      assert.deepEqual(response, { message: 'POST request with body, headers, and params successful' });
+      assert.deepEqual(response, { message: 'POST request with body, headers, and query successful' });
       done();
     }).catch(done);
   });
@@ -938,7 +937,7 @@ describe(`Query Parameters`, () => {
 
   const defaultURL = `http://example.com/default`;
   const defaultMethod = 'POST';
-  const defaultParams = { access_token: 'abcd', timestamp: 5555555 };
+  const defaultQuery = { access_token: 'abcd', timestamp: 5555555 };
 
   if(isBrowser) {
     before(() => {
@@ -960,11 +959,11 @@ describe(`Query Parameters`, () => {
     petal = createPetal({
       url: defaultURL,
       method: defaultMethod,
-      params: defaultParams
+      query: defaultQuery
     });
   });
 
-  it('should use default params if no params is provided in options', async () => {
+  it('should use default query if no query is provided in options', async () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
@@ -983,7 +982,7 @@ describe(`Query Parameters`, () => {
     assert.deepEqual(response, { message: "PARAM request successful" });
   });
 
-  it('should use params provided by setDefaults instead of initialization params', async () => {
+  it('should use query provided by setDefaults instead of initialization query', async () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
@@ -998,7 +997,7 @@ describe(`Query Parameters`, () => {
     );
 
     petal.setDefaults({
-      params: {
+      query: {
         access_token: 'dcba',
         timestamp: 111111111
       }
@@ -1009,7 +1008,7 @@ describe(`Query Parameters`, () => {
     assert.deepEqual(response, { message: "PARAM request successful" });
   });
 
-  it('should use provided params in options instead of default params', async () => {
+  it('should use provided query in options instead of default query', async () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
@@ -1024,14 +1023,14 @@ describe(`Query Parameters`, () => {
     );
 
     petal.setDefaults({
-      params: {
+      query: {
         access_token: 'dcba',
         timestamp: 111111111
       }
     })
 
     const response = await petal.request({
-      params: {
+      query: {
         access_token: 'bbbb',
         timestamp: 22222222
       }
@@ -1040,7 +1039,7 @@ describe(`Query Parameters`, () => {
     assert.deepEqual(response, { message: "PARAM request successful" });
   });
 
-  it('should replace all params when setDefault sets new params', async () => {
+  it('should replace all query when setDefault sets new query', async () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
@@ -1057,7 +1056,7 @@ describe(`Query Parameters`, () => {
     );
 
     petal.setDefaults({
-      params: {
+      query: {
         access_token: 'gggg',
       }
     })
@@ -1067,7 +1066,7 @@ describe(`Query Parameters`, () => {
     assert.deepEqual(response, { message: "PARAM request successful" });
   });
 
-  it('should remove all params when an empty object is provided', async () => {
+  it('should remove all query when an empty object is provided', async () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
@@ -1084,7 +1083,7 @@ describe(`Query Parameters`, () => {
     );
 
     petal.setDefaults({
-      params: {}
+      query: {}
     })
 
     const response = await petal.request();
@@ -1092,7 +1091,7 @@ describe(`Query Parameters`, () => {
     assert.deepEqual(response, { message: "PARAM request successful" });
   });
 
-  it('should not remove params when params key is not set in setDefaults', async () => {
+  it('should not remove query when query key is not set in setDefaults', async () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
@@ -1113,7 +1112,7 @@ describe(`Query Parameters`, () => {
     assert.deepEqual(response, { message: "PARAM request successful" });
   });
 
-  it('should merge and prioritize params in instance over defaults', async () => {
+  it('should merge and prioritize query in instance over defaults', async () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
@@ -1128,7 +1127,7 @@ describe(`Query Parameters`, () => {
     );
 
     const response = await petal.request({ 
-      params: {
+      query: {
         access_token: 'jjjj'
       } 
     });
@@ -1283,7 +1282,7 @@ describe(`Body Content`, () => {
       })
     );
 
-    petal.setDefaults({ params: {} })
+    petal.setDefaults({ query: {} })
 
     const response = await petal.request();
 
@@ -1524,7 +1523,7 @@ describe(`Headers`, () => {
       })
     );
 
-    petal.setDefaults({ params: {} })
+    petal.setDefaults({ query: {} })
 
     const response = await petal.request();
 

@@ -54,7 +54,7 @@ PetalFetch provides several methods for making HTTP requests: `get`, `post`, `pu
 ```javascript
 const options = {
   baseurl: 'https://sevenhalls.com',
-  params: {
+  query: {
     limit: 30,
     magicLevel: 'Third'
   },
@@ -184,7 +184,7 @@ You're free to modify the default settings even after creating an instance of Pe
 petal.setDefaults({ headers: { 'Authorization': 'Bearer <YOUR_TOKEN>' } });
 ```
 
-Do note that setting defaults for `body`, `headers`, or `params` completely overrides the previous defaults. Yet, the `'Content-Type'` header will stay as `'application/json'` unless you override it explicitly.
+Do note that setting defaults for `body`, `headers`, or `query` completely overrides the previous defaults. Yet, the `'Content-Type'` header will stay as `'application/json'` unless you override it explicitly.
 
 Keep in mind that any options specified in the request will merge with the defaults and take precedence over them. This allows you to fine-tune each request according to its specific requirements.
 
@@ -224,14 +224,14 @@ In your web page, create a portal to the realm of file uploads:
 
     <script src="petalfetch.js"></script> <!-- Replace with the actual path to your API JavaScript file -->
     <script>
-      const petal = createPetal({ handleErrors: true, responseType: 'text' });
+      const petal = createPetal({ handleErrors: true });
 
       async function flutter() {
         const portal = document.getElementById('fileInput');
         const filesToFlutter = Array.from(portal.files);
 
         const [ mischief, wondrousFind ] = await petal
-          .uploadFiles('http://localhost:3000/flutter', filesToFlutter);
+          .uploadFiles('http://localhost:3000/uploads', filesToFlutter);
 
         if (!mischief) {
           console.log('Files fluttered successfully:', wondrousFind);
@@ -243,51 +243,7 @@ In your web page, create a portal to the realm of file uploads:
   </body>
 </html>
 ```
-
-On the server side, we have crafted a whimsical Node.js script to embrace the fluttering files:
-
-```javascript
-const express = require('express');
-const multer = require('multer');
-const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
-
-const PORT = 3000;
-
-// Create the magical upload directory if it doesn't exist
-const mysticalDirectory = path.join(__dirname, 'library');
-if (!fs.existsSync(mysticalDirectory)) {
-  fs.mkdirSync(mysticalDirectory, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, mysticalDirectory);
-  },
-  filename: function (req, file, cb) {
-    const fileExtension = path.extname(file.originalname);
-    const fileName = path.basename(file.originalname, fileExtension);
-    cb(null, fileName + '-' + Date.now() + fileExtension);
-  },
-});
-
-const flutter = multer({ storage });
-
-const app = express();
-app.use(cors());
-
-// A magical route to receive the fluttering files
-app.post('/flutter', flutter.any(), async (req, res) => {
-  console.log('Received fluttering files', req.files.map((file) => file.path));
-  return res.send({ message: 'Files fluttered and enchanted successfully.' });
-});
-
-// Magical server setup
-app.listen(PORT, () => console.log(`Server is listening on port ${PORT}`));
-```
-
-Please note that, for now, the enchantment of file uploads from a Node.js environment is not supported. Stay tuned for future magical updates!
+Please note that, for now, the enchantment of file uploads from a Node.js environment is not supported. Stay tuned for future updates!
 
 ## API Reference
 
