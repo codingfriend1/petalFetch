@@ -261,6 +261,31 @@ This section provides a concise list of all the methods provided by PetalFetch, 
 
 When `handleErrors` is `true`, please note that all request methods return a Promise that resolves to an array of two elements: `[error, response]`. If the request is successful, `error` will be `null` and `response` will contain the server's response. If the request fails, `error` will contain the error and `response` will be `null`.
 
+## Format Option
+Additionally, PetalFetch allows you to customize how query parameters are formatted in the URL string. By default, PetalFetch utilizes the URLSearchParams API to format query parameters and applies custom logic to handle arrays and nested objects. However, you can choose an alternative format by providing a format option in the request configuration object, in the defaults during instantiation, or with `setDefaults()`.
+
+For example, if you prefer the qs library format, you can pass the format option as `qs.stringify`:
+
+```javascript
+const qs = require('qs');
+
+const options = {
+  query: {
+    limit: 30,
+    pagination: {
+      "start": 0,
+      "limit": 10
+    }
+  },
+  queryFormatter: (query) => qs.stringify(query, { allowDots: true, arrayFormat: 'indices' }), // Use qs library to format query parameters
+};
+
+const [error, response] = await petal.get('/books', options);
+```
+With this configuration, PetalFetch will use the qs.stringify function from the qs library to format the query parameters into the URL string.
+
+Feel free to explore different formatting options based on your preferences and requirements.
+
 ## Conclusion
 
 With the PetalFetch library, making HTTP requests is as delightful as a walk through a blooming garden. Its easy-to-use API and flexible customization options make it a powerful tool for any JavaScript project. Try it out and let the magic of PetalFetch make your coding journey more enjoyable!

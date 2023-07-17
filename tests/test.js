@@ -11,6 +11,7 @@ if(!isBrowser) {
   global.msw = require('msw/node');
   global.setupServer = msw.setupServer;
   global.rest = require('msw').rest;
+  global.qs = require('qs');
 } else {
   global.msw = require('msw');
   global.setupWorker = msw.setupWorker;
@@ -536,8 +537,6 @@ describe(`Base url`, () => {
         return res(ctx.json({ message: 'GET request successful' }));
       })
     );
-
-    console.log('should be able to unset a baseurl')
 
     petal.setDefaults({ baseurl: null })
 
@@ -1134,6 +1133,96 @@ describe(`Query Parameters`, () => {
 
     assert.deepEqual(response, { message: "PARAM request successful" });
   });
+
+  it('should handle nested objects and arrays in query strings', async () => {
+    
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+
+        if(req.url.searchParams.get('dog[owner][name]') === 'John' && 
+          req.url.searchParams.get('dog[age]') == '12' && 
+          req.url.searchParams.get('food[0][b][c][0]') == '1' && 
+          req.url.searchParams.get('user_ids[0]') === 'bbb' && 
+            req.url.searchParams.get('user_ids[1]') === 'ccc') {
+          return res(ctx.json({ message: "PARAM request successful" }));
+        } else {
+          return res(ctx.status(500), ctx.json({ message: "PARAM request failed" }));
+        }
+        
+      })
+    );
+
+    const response = await petal.request({ 
+      query: {
+        dog: {
+          age: 12,
+          owner: {
+            name: 'John',
+          }
+        },
+        vaccine: null,
+        user_ids: ['bbb', 'ccc'],
+        food: [{ b: { c: [1] } }],
+      } 
+    });
+
+    assert.deepEqual(response, { message: "PARAM request successful" });
+  });
+
+  it('should format query parameters using a custom formatter', async () => {
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+
+        if (req.url.searchParams.get('pagination') === '[object Object]') {
+          return res(ctx.json({ message: "PARAM request successful" }));
+        } else {
+          return res(ctx.status(500), ctx.json({ message: "PARAM request failed" }));
+        }
+      })
+    );
+
+    const response = await petal.request({
+      query: {
+        pagination: {
+          page: 1,
+          pageSize: 10,
+        },
+      },
+      queryFormatter: (query) => new URLSearchParams(query).toString(),
+    });
+
+    assert.deepEqual(response, { message: "PARAM request successful" });
+  });
+
+  if(!isBrowser) {
+
+    it('should format query parameters using qs formatter', async () => {
+      server.use(
+        rest.post(defaultURL, (req, res, ctx) => {
+
+          if (req.url.searchParams.get('a') === 'b,c') {
+            return res(ctx.json({ message: "PARAM request successful" }));
+          } else {
+            return res(ctx.status(500), ctx.json({ message: "PARAM request failed" }));
+          }
+        })
+      );
+
+      const response = await petal.request({
+        query: {
+          pagination: {
+            page: 1,
+            pageSize: 10,
+          },
+          a: ['b', 'c']
+        },
+        queryFormatter: (query) => qs.stringify(query, { allowDots: true, arrayFormat: 'comma' }),
+      });
+
+      assert.deepEqual(response, { message: "PARAM request successful" });
+    });
+
+  }
 
 });
 

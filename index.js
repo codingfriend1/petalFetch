@@ -17,6 +17,7 @@ function createPetal(settings = {}) {
       'Content-Type': CONTENT_TYPE_JSON,
     },
     responseType: 'json',
+    queryFormatter: 'URLSearchParams'
   };
 
   setDefaults(settings);
@@ -57,6 +58,7 @@ function createPetal(settings = {}) {
     defaults.headers = options.headers || defaults.headers || {}
     defaults.headers['Content-Type'] = defaults.headers && defaults.headers['Content-Type'] || CONTENT_TYPE_JSON
     defaults.responseType = options.responseType || defaults.responseType || 'json'
+    defaults.queryFormatter = options.queryFormatter || defaults.queryFormatter
     defaults.handleErrors = options.handleErrors || defaults.handleErrors
     defaults.query = options.query || defaults.query || {}
     defaults.body = options.body || defaults.body || {}
@@ -121,10 +123,50 @@ function createPetal(settings = {}) {
     }
   }
 
-  function buildURLWithQueryParams(config) {
-    const query = new URLSearchParams(config.query).toString();
-    return query ? `${config.url}?${query}` : config.url;
+  // Function to format query parameters based on the provided format option
+  function formatQueryParams(obj, format = 'URLSearchParams') {
+    if (format === 'URLSearchParams') {
+      const params = new URLSearchParams();
+
+      const appendQueryParam = (key, value) => {
+        if (Array.isArray(value)) {
+          value.forEach((item, index) => {
+            appendQueryParam(`${key}[${index}]`, item);
+          });
+        } else if (typeof value === 'object' && value !== null) {
+          for (const subKey in value) {
+            if (Object.prototype.hasOwnProperty.call(value, subKey)) {
+              appendQueryParam(`${key}[${subKey}]`, value[subKey]);
+            }
+          }
+        } else {
+          params.append(key, value);
+        }
+      };
+
+      for (const key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          appendQueryParam(key, obj[key]);
+        }
+      }
+
+      return params.toString();
+    } else if (typeof format === 'function') {
+      return format(obj);
+    } else {
+      throw new Error(`Unsupported query parameter format: ${format}`);
+    }
   }
+
+  function buildURLWithQueryParams(config) {
+      const query = formatQueryParams(config.query, config.queryFormatter);
+      return query ? `${config.url}?${query}` : config.url;
+    }
+
+  // function buildURLWithQueryParams(config) {
+  //   const query = new URLSearchParams(config.query).toString();
+  //   return query ? `${config.url}?${query}` : config.url;
+  // }
 
   function getConfig(options) {
 
@@ -134,6 +176,7 @@ function createPetal(settings = {}) {
       method: options.method !== undefined ? options.method : defaults.method,
       timeout: options.timeout !== undefined ? options.timeout : defaults.timeout,
       logErrors: options.logErrors !== undefined ? options.logErrors : defaults.logErrors,
+      queryFormatter: options.queryFormatter !== undefined ? options.queryFormatter : defaults.queryFormatter,
       headers: {
         ...defaults.headers,
         ...options.headers
