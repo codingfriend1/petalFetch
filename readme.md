@@ -181,10 +181,14 @@ With this, a `petal.get('/magical-creature')` call is equivalent to requesting '
 You're free to modify the default settings even after creating an instance of PetalFetch:
 
 ```javascript
+petal.patchDefaults({ headers: { 'Authorization': 'Bearer <YOUR_TOKEN>' } });
+```
+Or:
+```javascript
 petal.setDefaults({ headers: { 'Authorization': 'Bearer <YOUR_TOKEN>' } });
 ```
 
-Do note that setting defaults for `body`, `headers`, or `query` completely overrides the previous defaults. Yet, the `'Content-Type'` header will stay as `'application/json'` unless you override it explicitly.
+`patchDefaults` will merge the new `body`, `headers`, or `query` with the previous while `setDefaults` will completely override the previous `body`, `headers`, or `query`. Yet, the `'Content-Type'` header will stay as `'application/json'` unless you override it explicitly.
 
 Keep in mind that any options specified in the request will merge with the defaults and take precedence over them. This allows you to fine-tune each request according to its specific requirements.
 
@@ -256,7 +260,8 @@ This section provides a concise list of all the methods provided by PetalFetch, 
 - `petal.patch(url: String, options: Object)`: Makes a PATCH request.
 - `petal.delete(url: String, options: Object)`: Makes a DELETE request.
 - `petal.request(options: Object)`: Makes a request of any type.
-- `petal.setDefaults(options: Object)`: Updates the default settings for all requests
+- `petal.setDefaults(options: Object)`: Sets/Replaces the default settings for all requests
+- `petal.patchDefaults(options: Object)`: Updates/Merges the provided options with the default settings for all requests
 - `petal.uploadFiles(url: String, files: [ FormData ], options: Object)`: Uploads a list of files to an endpoint
 
 When `handleErrors` is `true`, please note that all request methods return a Promise that resolves to an array of two elements: `[error, response]`. If the request is successful, `error` will be `null` and `response` will contain the server's response. If the request fails, `error` will contain the error and `response` will be `null`.

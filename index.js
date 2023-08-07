@@ -14,7 +14,7 @@ function createPetal(settings = {}) {
 
   let defaults = {
     headers: {
-      'Content-Type': CONTENT_TYPE_JSON,
+      'content-type': CONTENT_TYPE_JSON,
     },
     responseType: 'json',
     queryFormatter: 'URLSearchParams'
@@ -55,13 +55,48 @@ function createPetal(settings = {}) {
     defaults.method = options.method !== undefined ? options.method : defaults.method
     defaults.timeout = options.timeout !== undefined ? options.timeout : defaults.timeout
     defaults.logErrors = options.logErrors !== undefined ? options.logErrors : defaults.logErrors
-    defaults.headers = options.headers || defaults.headers || {}
-    defaults.headers['Content-Type'] = defaults.headers && defaults.headers['Content-Type'] || CONTENT_TYPE_JSON
+
+    defaults.headers = {
+      'content-type': CONTENT_TYPE_JSON,
+      ...Object.keys(options.headers || defaults.headers || {}).reduce((acc, key) => {
+        const headersToUse = options.headers || defaults.headers || {};
+        acc[key.toLowerCase()] = headersToUse[key];
+        return acc;
+      }, {})
+    }
     defaults.responseType = options.responseType || defaults.responseType || 'json'
     defaults.queryFormatter = options.queryFormatter || defaults.queryFormatter
     defaults.handleErrors = options.handleErrors || defaults.handleErrors
     defaults.query = options.query || defaults.query || {}
     defaults.body = options.body || defaults.body || {}
+  }
+
+  function patchDefaults(options = {}) {
+    defaults.url = options.url !== undefined ? options.url : defaults.url
+    defaults.baseurl = options.baseurl !== undefined ? options.baseurl : defaults.baseurl
+    defaults.method = options.method !== undefined ? options.method : defaults.method
+    defaults.timeout = options.timeout !== undefined ? options.timeout : defaults.timeout
+    defaults.logErrors = options.logErrors !== undefined ? options.logErrors : defaults.logErrors
+    defaults.responseType = options.responseType || defaults.responseType || 'json'
+    defaults.queryFormatter = options.queryFormatter || defaults.queryFormatter
+    defaults.handleErrors = options.handleErrors || defaults.handleErrors
+
+    defaults.headers = {
+      'content-type': CONTENT_TYPE_JSON,
+      ...defaults.headers,
+      ...Object.keys(options.headers || {}).reduce((acc, key) => {
+        acc[key.toLowerCase()] = options.headers[key];
+        return acc;
+      }, {})
+    }
+    defaults.query = {
+      ...defaults.query,
+      ...(options.query || {})
+    }
+    defaults.body = {
+      ...defaults.body,
+      ...(options.body || {})
+    }
   }
 
   /**
@@ -179,16 +214,25 @@ function createPetal(settings = {}) {
       queryFormatter: options.queryFormatter !== undefined ? options.queryFormatter : defaults.queryFormatter,
       headers: {
         ...defaults.headers,
-        ...options.headers
+        ...options.headers = Object.keys(options.headers || {}).reduce((acc, key) => {
+          acc[key.toLowerCase()] = options.headers[key];
+          return acc;
+        }, {})
       },
       query: {
         ...defaults.query,
         ...options.query
       },
-      body: isBrowser && options.body instanceof FormData ? options.body: {
-        ...defaults.body,
-        ...options.body
-      },
+      body: isBrowser && options.body instanceof FormData
+        ? options.body
+        : options.body !== undefined
+        ? typeof options.body === 'string'
+          ? options.body
+          : {
+              ...defaults.body,
+              ...options.body
+            }
+        : defaults.body,
       handleErrors: options.handleErrors !== undefined ? options.handleErrors : defaults.handleErrors,
       responseType: options.responseType || defaults.responseType
     }
@@ -215,11 +259,11 @@ function createPetal(settings = {}) {
     // Include body in fetch options for relevant methods.
     if (![HTTP_METHODS.GET, HTTP_METHODS.DELETE].includes(config.method)) {
       if(isBrowser && config.body instanceof FormData) {
-        delete config.headers['Content-Type'];
+        delete config.headers['content-type'];
       } else if (config.body && Object.keys(config.body).length) {
-        if(config.headers['Content-Type'] === CONTENT_TYPE_JSON) {
+        if(config.headers['content-type'] === CONTENT_TYPE_JSON) {
           config.body = JSON.stringify(config.body);
-        } else if (config.headers['Content-Type'] === CONTENT_TYPE_URL_ENCODED) {
+        } else if (config.headers['content-type'] === CONTENT_TYPE_URL_ENCODED) {
           config.body = new URLSearchParams(config.body).toString();
         }
         
@@ -322,7 +366,8 @@ function createPetal(settings = {}) {
     delete: (url, options = {}) => httpRequest(HTTP_METHODS.DELETE, url, options),
     request: (options = {}) => httpRequest(options.method, options.url, options),
     uploadFiles,
-    setDefaults
+    setDefaults,
+    patchDefaults,
   };
 }
 

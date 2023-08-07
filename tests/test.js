@@ -1407,6 +1407,206 @@ describe(`Body Content`, () => {
 
 });
 
+describe('patchDefaults', function() {
+
+  let petal;
+
+  const defaultURL = `http://example.com/default`;
+  const defaultMethod = 'POST';
+  const defaultHeaders = { accept: APPLICATION_JSON, session: 'session_id=38afes7a8; user=john' };
+  const defaultBody = { token: '1234', id: '13' };
+  const defaultQuery = {
+    limit: '10',
+    offset: '0'
+  }
+
+  if(isBrowser) {
+    before(() => {
+      server = setupWorker();
+      server.start()
+    });
+    after(() => server.stop());
+    afterEach(() => server.resetHandlers());
+  } else {
+    before(() => {
+      server = setupServer();
+      server.listen()
+    });
+    after(() => server.close());
+    afterEach(() => server.resetHandlers());
+  }
+
+  beforeEach(() => {
+    petal = createPetal({
+      url: defaultURL,
+      method: defaultMethod,
+      headers: defaultHeaders,
+      body: defaultBody,
+      query: defaultQuery
+    });
+  });
+  
+
+  it(`should merge defaults when using 'patchDefaults'`, async () => {
+
+    const newMergedHeaders = {
+      authorization: '123', 
+      session: 'session_id=33333; user=mike'
+    }
+
+    const newMergedBody = {
+      token: 'gggg'
+    }
+
+    const query = {
+      search: 'active',
+      offset: '10'
+    }
+    
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        const headersObject = {};
+        req.headers.forEach((value, name) => {
+          if(name !== 'host') {
+            headersObject[name] = value;
+          }
+        });
+
+        const queryParams = {};
+        req.url.searchParams.forEach((value, key) => {
+          queryParams[key] = value;
+        });
+
+        assert.deepEqual(headersObject, { 
+          'content-type': 'application/json', 
+          ...defaultHeaders,
+          ...newMergedHeaders
+        })
+
+        assert.deepEqual(req.body, { ...defaultBody, ...newMergedBody });
+        assert.deepEqual(queryParams, { ...defaultQuery, ...query });
+        return res(ctx.json({ message: "Body request successful" }));
+      })
+    );
+
+    petal.patchDefaults({
+      body: newMergedBody,
+      headers: newMergedHeaders,
+      query
+    })
+
+    const response = await petal.request();
+
+    assert.deepEqual(response, { message: "Body request successful" });
+  });
+
+  it('should override Content-Type', async () => {
+
+    const newMergedHeaders = {
+      'Content-Type': 'text/plain',
+      'Accept': 'text/plain'
+    }
+    
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        const headersObject = {};
+        req.headers.forEach((value, name) => {
+          if(name !== 'host') {
+            headersObject[name] = value;
+          }
+        });
+
+        assert.deepEqual(headersObject, { 
+          ...defaultHeaders,
+          'content-type': 'text/plain',
+          'accept': 'text/plain'
+        })
+        return res(ctx.text("Body request successful"));
+      })
+    );
+
+    petal.patchDefaults({
+      headers: newMergedHeaders,
+      responseType: 'text'
+    })
+
+    const response = await petal.request({ body: 'This is plain text' });
+
+    assert.deepEqual(response, "Body request successful");
+  });
+
+  it('should keep all content when an empty object is supplied', async () => {
+    
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        const headersObject = {};
+        req.headers.forEach((value, name) => {
+          if(name !== 'host') {
+            headersObject[name] = value;
+          }
+        });
+
+        const queryParams = {};
+        req.url.searchParams.forEach((value, key) => {
+          queryParams[key] = value;
+        });
+
+        assert.deepEqual(req.body, defaultBody)
+        assert.deepEqual(headersObject, { 
+          'content-type': 'application/json', 
+          ...defaultHeaders 
+        })
+        assert.deepEqual(queryParams, defaultQuery)
+        return res(ctx.json({ message: "Body request successful" }));
+      })
+    );
+
+    petal.patchDefaults({
+      body: {},
+      headers: {},
+      query: {}
+    })
+
+    const response = await petal.request();
+
+    assert.deepEqual(response, { message: "Body request successful" });
+  });
+
+  it('should retain the body and headers content when only "query" key is not set in patchDefaults', async () => {
+    
+    server.use(
+      rest.post(defaultURL, (req, res, ctx) => {
+        const headersObject = {};
+        req.headers.forEach((value, name) => {
+          if(name !== 'host') {
+            headersObject[name] = value;
+          }
+        });
+
+        const queryParams = {};
+        req.url.searchParams.forEach((value, key) => {
+          queryParams[key] = value;
+        });
+
+        assert.deepEqual(req.body, defaultBody);
+        assert.deepEqual(queryParams, defaultQuery);
+        assert.deepEqual(headersObject, { 
+          'content-type': 'application/json', 
+          ...defaultHeaders
+        })
+        return res(ctx.json({ message: "Body request successful" }));
+      })
+    );
+
+    petal.patchDefaults({ query: {} })
+
+    const response = await petal.request();
+
+    assert.deepEqual(response, { message: "Body request successful" });
+  });
+
+});
+
 
 describe(`Headers`, () => {
 
@@ -1652,7 +1852,7 @@ describe(`Headers`, () => {
     
     server.use(
       rest.post(defaultURL, (req, res, ctx) => {
-        assert.equal(req.headers.get('Content-Type'), APPLICATION_URL_ENCODED);
+        assert.equal(req.headers.get('content-type'), APPLICATION_URL_ENCODED);
         return res(ctx.json(req.body));
       })
     );
