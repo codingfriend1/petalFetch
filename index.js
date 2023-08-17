@@ -11,6 +11,7 @@ function createPetal(settings = {}) {
 
   const CONTENT_TYPE_JSON = 'application/json';
   const CONTENT_TYPE_URL_ENCODED = 'application/x-www-form-urlencoded';
+  const isBrowser = typeof window !== 'undefined';
 
   let defaults = {
     headers: {
@@ -20,9 +21,7 @@ function createPetal(settings = {}) {
     queryFormatter: 'URLSearchParams'
   };
 
-  setDefaults(settings);
-
-  const isBrowser = typeof window !== 'undefined';
+  defaults = getOptions(settings);
 
   let https;
   if(!isBrowser) {
@@ -49,54 +48,60 @@ function createPetal(settings = {}) {
     }
   }
 
-  function setDefaults(options = {}) {
-    defaults.url = options.url !== undefined ? options.url : defaults.url
-    defaults.baseurl = options.baseurl !== undefined ? options.baseurl : defaults.baseurl
-    defaults.method = options.method !== undefined ? options.method : defaults.method
-    defaults.timeout = options.timeout !== undefined ? options.timeout : defaults.timeout
-    defaults.logErrors = options.logErrors !== undefined ? options.logErrors : defaults.logErrors
-
-    defaults.headers = {
-      'content-type': CONTENT_TYPE_JSON,
-      ...Object.keys(options.headers || defaults.headers || {}).reduce((acc, key) => {
-        const headersToUse = options.headers || defaults.headers || {};
-        acc[key.toLowerCase()] = headersToUse[key];
-        return acc;
-      }, {})
-    }
-    defaults.responseType = options.responseType || defaults.responseType || 'json'
-    defaults.queryFormatter = options.queryFormatter || defaults.queryFormatter
-    defaults.handleErrors = options.handleErrors || defaults.handleErrors
-    defaults.query = options.query || defaults.query || {}
-    defaults.body = options.body || defaults.body || {}
+  // Returns the option value if it exists; otherwise, returns the default value.
+  function getOrDefault(optionValue, defaultValue) {
+    return optionValue !== undefined ? optionValue : defaultValue;
   }
 
-  function patchDefaults(options = {}) {
-    defaults.url = options.url !== undefined ? options.url : defaults.url
-    defaults.baseurl = options.baseurl !== undefined ? options.baseurl : defaults.baseurl
-    defaults.method = options.method !== undefined ? options.method : defaults.method
-    defaults.timeout = options.timeout !== undefined ? options.timeout : defaults.timeout
-    defaults.logErrors = options.logErrors !== undefined ? options.logErrors : defaults.logErrors
-    defaults.responseType = options.responseType || defaults.responseType || 'json'
-    defaults.queryFormatter = options.queryFormatter || defaults.queryFormatter
-    defaults.handleErrors = options.handleErrors || defaults.handleErrors
+  // Processes headers to ensure all keys are in lowercase.
+  function processHeaders(headers) {
+    return Object.keys(headers || {}).reduce((acc, key) => {
+      acc[key.toLowerCase()] = headers[key];
+      return acc;
+    }, {});
+  }
 
-    defaults.headers = {
-      'content-type': CONTENT_TYPE_JSON,
-      ...defaults.headers,
-      ...Object.keys(options.headers || {}).reduce((acc, key) => {
-        acc[key.toLowerCase()] = options.headers[key];
-        return acc;
-      }, {})
+  // Determines the appropriate body value based on various conditions.
+  function determineBody(options, merge) {
+    // If in a browser context and body is FormData, or if body is a string, or if merging isn't required
+    if (isBrowser && options.body instanceof FormData || typeof options.body === 'string' || !merge) {
+      return options.body || defaults.body;
+    } else {
+      return {
+        ...defaults.body, 
+        ...(options.body || {})
+      }
     }
-    defaults.query = {
-      ...defaults.query,
-      ...(options.query || {})
-    }
-    defaults.body = {
-      ...defaults.body,
-      ...(options.body || {})
-    }
+  }
+
+  // Extracts and returns default option values safely.
+  function getOptions(options = {}, merge = false) {
+    return {
+      url: getOrDefault(options.url, defaults.url),
+      baseurl: getOrDefault(options.baseurl, defaults.baseurl),
+      method: getOrDefault(options.method, defaults.method),
+      timeout: getOrDefault(options.timeout, defaults.timeout),
+      logErrors: getOrDefault(options.logErrors, defaults.logErrors),
+      responseType: getOrDefault(options.responseType, defaults.responseType) || 'json',
+      queryFormatter: getOrDefault(options.queryFormatter, defaults.queryFormatter),
+      handleErrors: getOrDefault(options.handleErrors, defaults.handleErrors),
+
+      query: merge ? {
+        ...defaults.query,
+        ...options.query
+      } : getOrDefault(options.query, defaults.query) || {},
+
+      headers: merge ? {
+        'content-type': CONTENT_TYPE_JSON,
+        ...defaults.headers,
+        ...processHeaders(options.headers)
+      } : {
+        'content-type': CONTENT_TYPE_JSON,
+        ...processHeaders(options.headers || defaults.headers)
+      },
+
+      body: determineBody(options, merge)
+    };
   }
 
   /**
@@ -203,47 +208,12 @@ function createPetal(settings = {}) {
   //   return query ? `${config.url}?${query}` : config.url;
   // }
 
-  function getConfig(options) {
-
-    return {
-      url: options.url !== undefined ? options.url : defaults.url,
-      baseurl: options.baseurl !== undefined ? options.baseurl : (defaults.baseurl || undefined),
-      method: options.method !== undefined ? options.method : defaults.method,
-      timeout: options.timeout !== undefined ? options.timeout : defaults.timeout,
-      logErrors: options.logErrors !== undefined ? options.logErrors : defaults.logErrors,
-      queryFormatter: options.queryFormatter !== undefined ? options.queryFormatter : defaults.queryFormatter,
-      headers: {
-        ...defaults.headers,
-        ...options.headers = Object.keys(options.headers || {}).reduce((acc, key) => {
-          acc[key.toLowerCase()] = options.headers[key];
-          return acc;
-        }, {})
-      },
-      query: {
-        ...defaults.query,
-        ...options.query
-      },
-      body: isBrowser && options.body instanceof FormData
-        ? options.body
-        : options.body !== undefined
-        ? typeof options.body === 'string'
-          ? options.body
-          : {
-              ...defaults.body,
-              ...options.body
-            }
-        : defaults.body,
-      handleErrors: options.handleErrors !== undefined ? options.handleErrors : defaults.handleErrors,
-      responseType: options.responseType || defaults.responseType
-    }
-  }
-
   async function httpRequest(method, url, options) {
 
     options.method = method;
     options.url = url
 
-    let config = getConfig(options);
+    let config = getOptions(options, true);
     config.url = concatenateURL(config);
 
     if(!config.url) {
@@ -345,7 +315,7 @@ function createPetal(settings = {}) {
     }
 
     options.url = url
-    let config = getConfig(options)
+    let config = getOptions(options, true)
     config.url = concatenateURL(config);
 
     let formData = new FormData();
@@ -366,8 +336,8 @@ function createPetal(settings = {}) {
     delete: (url, options = {}) => httpRequest(HTTP_METHODS.DELETE, url, options),
     request: (options = {}) => httpRequest(options.method, options.url, options),
     uploadFiles,
-    setDefaults,
-    patchDefaults,
+    setDefaults: (options = {}) => { defaults = getOptions(options); },
+    patchDefaults: (options = {}) => { defaults = getOptions(options, true); },
   };
 }
 
