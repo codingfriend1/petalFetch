@@ -199,14 +199,9 @@ function createPetal(settings = {}) {
   }
 
   function buildURLWithQueryParams(config) {
-      const query = formatQueryParams(config.query, config.queryFormatter);
-      return query ? `${config.url}?${query}` : config.url;
-    }
-
-  // function buildURLWithQueryParams(config) {
-  //   const query = new URLSearchParams(config.query).toString();
-  //   return query ? `${config.url}?${query}` : config.url;
-  // }
+    const query = formatQueryParams(config.query, config.queryFormatter);
+    return query ? `${config.url}?${query}` : config.url;
+  }
 
   async function httpRequest(method, url, options) {
 
