@@ -1864,11 +1864,14 @@ describe(`Headers`, () => {
       body: {
         page: 1,
         limit: 10,
-        searchTerms: ['photos', 'cats']
+        searchTerms: ['photos', 'cats'],
+        query: {
+          termm: 'cats'
+        }
       }
     });
 
-    assert.deepEqual(response, 'page=1&limit=10&searchTerms=photos%2Ccats');
+    assert.deepEqual(response, 'page=1&limit=10&searchTerms%5B0%5D=photos&searchTerms%5B1%5D=cats&query%5Btermm%5D=cats');
   });
 
   it(`should encode 'application/json'`, async () => {

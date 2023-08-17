@@ -264,7 +264,7 @@ function createPetal(settings = {}) {
         if(config.headers['content-type'] === CONTENT_TYPE_JSON) {
           config.body = JSON.stringify(config.body);
         } else if (config.headers['content-type'] === CONTENT_TYPE_URL_ENCODED) {
-          config.body = new URLSearchParams(config.body).toString();
+          config.body = formatQueryParams(config.body, config.queryFormatter)
         }
         
       } else {
